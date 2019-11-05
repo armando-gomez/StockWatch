@@ -1,6 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="20dp"
+    android:background="@android:color/black">
+
+    <TextView
+        android:id="@+id/stockSymbol"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:textAllCaps="true"
+        android:textColor="@color/positiveChange"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="TST" />
+
+    <TextView
+        android:id="@+id/stockPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="100dp"
+        android:layout_marginEnd="100dp"
+        android:textColor="@color/positiveChange"
+        android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/stockSymbol"
+        app:layout_constraintEnd_toStartOf="@+id/stockChangeText"
+        app:layout_constraintStart_toEndOf="@+id/stockSymbol"
+        tools:text="100.50" />
+
+    <TextView
+        android:id="@+id/stockChangeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:textColor="@color/positiveChange"
+        app:layout_constraintBaseline_toBaselineOf="@+id/stockPrice"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="▲ 0.38 (0.28%)" />
+
+    <TextView
+        android:id="@+id/stockCompanyName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/positiveChange"
+        android:textSize="12sp"
+        android:textStyle="italic"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stockSymbol"
+        tools:text="Test Company" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
