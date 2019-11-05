@@ -30,15 +30,16 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener {
 	private RecyclerView recyclerView;
 	private SwipeRefreshLayout swiper;
 	private List<Stock> stockList = new ArrayList<>();
-	private Map<String, Integer> stockMap = new HashMap<>();
+	private Set<String> stockSet = new HashSet<>();
 	private StockAdapter stockAdapter;
 	private Menu menu;
 	private String addInput = "";
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 				if(!addInput.isEmpty()) {
 					Map<String, String> similarKeys = AsyncSymbolLoader.findStocks(addInput);
 					if(similarKeys.size() == 1) {
-					    if(!stockMap.containsKey(addInput)) {
+					    if(!stockSet.contains(addInput)) {
                             getFinancialData(addInput);
                         } else {
 					        duplicateStock(addInput);
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
-        });
+    });
 
         builder.show();
 	}
@@ -202,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 	private void deleteStock(int pos) {
 	    String symbol = stockList.get(pos).getStockSymbol();
-	    stockMap.remove(symbol);
+	    stockSet.remove(symbol);
 		stockList.remove(pos);
 		updateList();
 	}
@@ -223,15 +224,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 	}
 
 	public void updateStockList(Stock s) {
-	    if(!stockMap.containsKey(s.getStockSymbol())) {
+	    if(!stockSet.contains(s.getStockSymbol())) {
             stockList.add(s);
-            stockMap.put(s.getStockSymbol(), stockList.indexOf(s));
-
+            stockSet.add(s.getStockSymbol());
         } else {
-	        int i = stockMap.get(s.getStockSymbol());
-	        Stock t = stockList.get(i);
-	        t.updateStock(s.getPrice(), s.getChange(), s.getChangePercent());
-	        stockList.set(i, t);
+	        int i = stockList.indexOf(s);
+	        stockList.set(i, s);
         }
         updateList();
 	}

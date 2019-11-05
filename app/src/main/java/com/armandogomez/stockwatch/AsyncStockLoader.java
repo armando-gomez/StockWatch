@@ -65,9 +65,18 @@ public class AsyncStockLoader extends AsyncTask<String, Integer, String> {
 			JSONObject jStock = new JSONObject(s);
 			String symbol = jStock.getString("symbol");
 			String name = jStock.getString("companyName");
-			double price = jStock.getDouble("latestPrice");
-			double change = jStock.getDouble("change");
-			double changePercent = jStock.getDouble("changePercent");
+            double price = 0.0;
+            if(jStock.get("latestPrice") != null) {
+			    price = jStock.getDouble("latestPrice");
+            }
+			double change = 0.0;
+            if(jStock.get("change") != null) {
+                change = jStock.getDouble("change");
+            }
+			double changePercent = 0.0;
+            if(jStock.get("changePercent") != null) {
+                changePercent = jStock.getDouble("changePercent");
+            }
 			Stock stock = new Stock(symbol, name, price, change, changePercent);
 			return stock;
 		} catch (Exception e) {

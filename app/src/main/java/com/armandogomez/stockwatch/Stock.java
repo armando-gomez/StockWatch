@@ -60,4 +60,18 @@ public class Stock {
 	private void setChangePercent(double changePercent) {
 		this.changePercent = changePercent;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if(o == this) {
+			return true;
+		}
+
+		if(!(o instanceof Stock)) {
+			return false;
+		}
+
+		Stock s = (Stock) o;
+		return this.getStockSymbol().equals(s.getStockSymbol());
+	}
 }
