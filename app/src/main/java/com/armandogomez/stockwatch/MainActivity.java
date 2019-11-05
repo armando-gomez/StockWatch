@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
@@ -16,13 +17,26 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener {
 	private RecyclerView recyclerView;
 	private SwipeRefreshLayout swiper;
 	private List<Stock> stockList = new ArrayList<>();
+	private Map<String, Stock> stockMap = new HashMap<>();
 	private StockAdapter stockAdapter;
 	private Menu menu;
 
@@ -47,17 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 			}
 		});
 
-		createStocks();
-	}
-
-	private void createStocks() {
-		Stock apple = new Stock("APPL", "Apple Inc.", 132.72, 0.38, 0.28);
-		Stock google = new Stock("GOOG", "Alphabet Inc", 132.72, -0.85, -0.14);
-		Stock amazon = new Stock("AMZN", "Amazon.com inc.", 132.72, 0.38, 0.28);
-
-		stockList.add(apple);
-		stockList.add(google);
-		stockList.add(amazon);
+		loadJSON();
 	}
 
 	private void doRefresh() {
@@ -78,7 +82,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				addInput = input.getText().toString().toUpperCase();
-				Toast.makeText(input.getContext(), addInput, Toast.LENGTH_SHORT).show();
+				if(!addInput.isEmpty()) {
+					Map<String, String> similarKeys = AsyncSymbolLoader.findStocks(addInput);
+					if(similarKeys.size() == 1) {
+						getFinancialData(addInput);
+					} else if(similarKeys.size() > 1) {
+						openMultiStockDialog(similarKeys);
+					}
+				}
+				getFinancialData(addInput);
 			}
 		});
 		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -89,6 +101,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 		});
 
 		builder.show();
+	}
+
+	private void openMultiStockDialog(Map<String, String> stocks) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		List<String> items = new ArrayList<>();
+		for(String key: stocks.keySet()) {
+			items.add(key + " - " + stocks.get(key));
+		}
+		builder.setTitle("Make a selection")
+				.setItems(stocks, new DialogInterface.OnClickListener() {
+				})
+
 	}
 
 	@Override
@@ -140,6 +164,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 		return false;
 	}
 
+	private void getFinancialData(String symbol) {
+		new AsyncStockLoader(this, symbol).execute();
+	}
+
 	private void deleteStock(int pos) {
 		stockList.remove(pos);
 		updateList();
@@ -147,5 +175,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 	private void updateList() {
 		stockAdapter.notifyDataSetChanged();
+		try {
+			saveStocks();
+		} catch(IOException | JSONException e) {
+			Toast.makeText(this, "Not saved", Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	public void updateStockList(Stock s) {
+		if(!stockMap.containsKey(s.getStockSymbol())) {
+			stockList.add(s);
+			stockMap.put(s.getStockSymbol(), s);
+			Toast.makeText(this, "Loaded " + s.getStockSymbol(), Toast.LENGTH_SHORT).show();
+		}
+		updateList();
+	}
+
+	private void loadJSON() {
+		try {
+			InputStream is = getApplicationContext().openFileInput("Stocks.json");
+			BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+
+			StringBuilder sb = new StringBuilder();
+			String line;
+			while((line = reader.readLine()) != null) {
+				sb.append(line);
+			}
+			reader.close();
+			List<String> tempSymbols = new ArrayList<>();
+			JSONArray jsonArray = new JSONArray(sb.toString());
+			for(int i=0; i < jsonArray.length(); i++) {
+				JSONObject jsonObject = (JSONObject) jsonArray.get(i);
+				String symbol = jsonObject.getString("symbol");
+				tempSymbols.add(symbol);
+			}
+
+			new AsyncSymbolLoader(this).execute();
+
+			for(String symbol: tempSymbols) {
+				getFinancialData(symbol);
+			}
+		} catch(FileNotFoundException e) {
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void saveStocks() throws IOException, JSONException {
+		FileOutputStream fos = getApplicationContext()
+				.openFileOutput("Stocks.json", Context.MODE_PRIVATE);
+		JSONArray jsonArray = new JSONArray();
+		for(Stock s: stockList) {
+			JSONObject stockJSON = new JSONObject();
+			stockJSON.put("symbol", s.getStockSymbol());
+			jsonArray.put(stockJSON);
+		}
+
+		String jsonText = jsonArray.toString();
+		fos.write(jsonText.getBytes());
+		fos.close();
 	}
 }
