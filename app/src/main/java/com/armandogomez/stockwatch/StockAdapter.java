@@ -42,11 +42,11 @@ public class StockAdapter extends RecyclerView.Adapter<ViewHolder> {
 
 		holder.stockSymbol.setText(stock.getStockSymbol());
 		holder.stockSymbol.setTextColor(stockColor);
-		holder.stockPrice.setText(String.format("%.2f", stock.getPrice()));
+		holder.stockPrice.setText(Double.toString(stock.getPrice()));
 		holder.stockPrice.setTextColor(stockColor);
 		holder.stockCompanyName.setText(stock.getCompanyName());
 		holder.stockCompanyName.setTextColor(stockColor);
-		String changeText = arrow + String.format("%.2f", stockChange) + "(" + String.format("%.2f", stock.getChangePercent()) + "%)";
+		String changeText = arrow + Double.toString(stockChange) + "(" + Double.toString(stock.getChangePercent()) + "%)";
 		holder.stockChangeText.setText(changeText);
 		holder.stockChangeText.setTextColor(stockColor);
 	}

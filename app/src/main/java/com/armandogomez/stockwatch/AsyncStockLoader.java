@@ -20,13 +20,16 @@ import java.util.List;
 public class AsyncStockLoader extends AsyncTask<String, Integer, String> {
 	@SuppressLint("StaticFieldLeak")
 	private MainActivity mainActivity;
+	private String symbol;
 	private static final String TAG = "AsyncStockLoader";
 
 	private static final String DATA_URL = "https://cloud.iexapis.com/stable/stock/";
 	private static final String DATA_QUERY = "/quote?token=";
 	private static final String SECRET_TOKEN = "sk_c00a347722694ce9963eaf76b75b630c";
-	AsyncStockLoader(MainActivity mainActivity) {
+
+	AsyncStockLoader(MainActivity mainActivity, String symbol) {
 		this.mainActivity = mainActivity;
+		this.symbol = symbol;
 	}
 
 	@Override
@@ -39,7 +42,7 @@ public class AsyncStockLoader extends AsyncTask<String, Integer, String> {
 	protected String doInBackground(String... params) {
 		Uri dataUri = Uri.parse(DATA_URL);
 		StringBuilder sb = new StringBuilder();
-		String urlToUse = dataUri.toString() + params[0] + DATA_QUERY + SECRET_TOKEN;
+		String urlToUse = dataUri.toString() + symbol + DATA_QUERY + SECRET_TOKEN;
 		try {
 			URL url = new URL(urlToUse);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();

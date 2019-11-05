@@ -15,14 +15,6 @@ public class Stock {
 		this.changePercent = changePercent;
 	}
 
-	Stock(String stockSymbol, String companyName) {
-		this.stockSymbol = stockSymbol;
-		this.companyName = companyName;
-		this.price = 0.0;
-		this.change = 0.0;
-		this.changePercent = 0.0;
-	}
-
 	public String getStockSymbol() {
 		return stockSymbol;
 	}

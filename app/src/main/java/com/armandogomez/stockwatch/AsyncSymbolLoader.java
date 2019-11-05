@@ -24,11 +24,12 @@ public class AsyncSymbolLoader extends AsyncTask<String, Integer, String> {
 	@SuppressLint("StaticFieldLeak")
 	private MainActivity mainActivity;
 	private static final String TAG = "AsyncSymbolLoader";
-	private static Map<String, String> symbolMap = new HashMap<>();
+	private static Map<String, String> symbolMap;
 	private static final String SYMBOL_URL = "https://api.iextrading.com/1.0/ref-data/symbols";
 
 	AsyncSymbolLoader(MainActivity mainActivity) {
 		this.mainActivity = mainActivity;
+		this.symbolMap = new HashMap<>();
 	}
 
 	@Override
@@ -64,6 +65,7 @@ public class AsyncSymbolLoader extends AsyncTask<String, Integer, String> {
 	}
 
 	private void parseJSON(String s) {
+		Map<String, String> symbolMap = new HashMap<>();
 		try {
 			JSONArray jObjMain = new JSONArray(s);
 			for(int i=0; i < jObjMain.length(); i++) {
@@ -71,7 +73,7 @@ public class AsyncSymbolLoader extends AsyncTask<String, Integer, String> {
 				String symbol = jStock.getString("symbol");
 				String name = jStock.getString("name");
 				if(!name.isEmpty()) {
-					this.symbolMap.put(symbol, name);
+					symbolMap.put(symbol, name);
 				}
 			}
 		} catch (Exception e) {
